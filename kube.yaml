@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-celery-rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-celery-rabbitmq
+  template:
+    metadata:
+      labels:
+        app: django-celery-rabbitmq
+    spec:
+      containers:
+        - name: django
+          image: 992382409921.dkr.ecr.ap-southeast-2.amazonaws.com/dhruv-suthar-registry:latest
+          command: ["/bin/sh","-c"]
+          args:
+            - python manage.py makemigrations
+              python manage.py migrate
+              python manage.py runserver 0.0.0.0:8000
+        - name: celery
+          image: 992382409921.dkr.ecr.ap-southeast-2.amazonaws.com/dhruv-suthar-registry:latest
+          command: ["/bin/sh","-c"]
+          args:
+          - celery -A celeryproj worker -l info
+        - name: rabbitmq
+          image: rabbitmq:latest
